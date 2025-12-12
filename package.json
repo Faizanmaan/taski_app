@@ -22,6 +22,7 @@
     "@react-navigation/native-stack": "^6.9.17",
     "@reduxjs/toolkit": "^2.0.1",
     "expo": "^54.0.27",
+    "expo-image-picker": "~17.0.10",
     "expo-status-bar": "~3.0.9",
     "firebase": "^12.6.0",
     "react": "19.1.0",

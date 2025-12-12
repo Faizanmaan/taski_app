@@ -65,6 +65,7 @@ const Login: React.FC = () => {
                     console.log('Saving user data to Firestore...', userCredential.user.uid);
                     await setDoc(doc(firebaseFirestore(), 'users', userCredential.user.uid), {
                         fullName,
+                        displayName: fullName, // Also save as displayName for profile display
                         phoneNumber,
                         email,
                         createdAt: Timestamp.fromDate(new Date()),
@@ -113,8 +114,28 @@ const Login: React.FC = () => {
             dispatch(setUser(userCredential.user));
         } catch (error: any) {
             console.error('Auth error:', error);
-            dispatch(setError(error.message));
-            Alert.alert('Error', error.message);
+
+            // User-friendly error messages
+            let errorMessage = 'An error occurred. Please try again.';
+
+            if (error.code === 'auth/email-already-in-use') {
+                errorMessage = 'This email is already registered. Please login instead.';
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = 'Please enter a valid email address.';
+            } else if (error.code === 'auth/weak-password') {
+                errorMessage = 'Password should be at least 6 characters.';
+            } else if (error.code === 'auth/user-not-found') {
+                errorMessage = 'No account found with this email.';
+            } else if (error.code === 'auth/wrong-password') {
+                errorMessage = 'Incorrect password. Please try again.';
+            } else if (error.code === 'auth/invalid-credential') {
+                errorMessage = 'Invalid email or password.';
+            } else if (error.code === 'auth/too-many-requests') {
+                errorMessage = 'Too many failed attempts. Please try again later.';
+            }
+
+            dispatch(setError(errorMessage));
+            Alert.alert('Error', errorMessage);
         } finally {
             setLoadingState(false);
             dispatch(setLoading(false));

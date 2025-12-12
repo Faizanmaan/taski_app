@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { firebaseAuth } from '../../config/firebase';
 import { signOut } from 'firebase/auth';
@@ -55,7 +55,7 @@ const Settings: React.FC = () => {
                 <View style={styles.profileContainer}>
                     <View style={styles.avatarContainer}>
                         <Image
-                            source={{ uri: 'https://i.pravatar.cc/150?img=12' }} // Placeholder image
+                            source={{ uri: user?.photoURL || 'https://i.pravatar.cc/150?img=12' }}
                             style={styles.avatar}
                         />
                     </View>
@@ -67,7 +67,7 @@ const Settings: React.FC = () => {
                         style={styles.editButton}
                         onPress={() => navigation.navigate('EditProfile' as never)}
                     >
-                        <Ionicons name="pencil-outline" size={20} color={COLORS.light.textSecondary} />
+                        <Feather name="edit" size={20} color={COLORS.light.textSecondary} />
                     </TouchableOpacity>
                 </View>
 
@@ -89,11 +89,12 @@ const Settings: React.FC = () => {
                         <Text style={[styles.menuItemText, styles.signOutText]}>Sign Out</Text>
                     </TouchableOpacity>
                 </View>
-
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>Todo App</Text>
-                </View>
             </ScrollView>
+
+            {/* Footer at bottom */}
+            <View style={styles.footer}>
+                <Text style={styles.footerText}>Todo App</Text>
+            </View>
         </SafeAreaView>
     );
 };
@@ -181,7 +182,10 @@ const styles = StyleSheet.create({
     },
     footer: {
         alignItems: 'center',
-        marginTop: SPACING.xl,
+        justifyContent: 'center',
+        paddingVertical: SPACING.lg,
+        // borderTopWidth: 1,
+        // borderTopColor: COLORS.light.border,
     },
     footerText: {
         fontSize: 14,

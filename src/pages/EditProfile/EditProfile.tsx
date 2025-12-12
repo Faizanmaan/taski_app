@@ -16,7 +16,9 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile } from 'firebase/auth';
-import { firebaseAuth } from '../../config/firebase';
+import * as ImagePicker from 'expo-image-picker';
+import { doc, setDoc } from 'firebase/firestore';
+import { firebaseAuth, firebaseFirestore } from '../../config/firebase';
 import { setUser } from '../../store/authSlice';
 import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../../constants/theme';
 import { globalStyles } from '../../styles/globalStyles';
@@ -29,7 +31,43 @@ const EditProfile: React.FC = () => {
 
     const [fullName, setFullName] = useState(user?.displayName || '');
     const [email, setEmail] = useState(user?.email || '');
+    const [image, setImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.5,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
+
+    const convertImageToBase64 = async (uri: string): Promise<string> => {
+        try {
+            console.log('Converting image to base64:', uri);
+            const response = await fetch(uri);
+            const blob = await response.blob();
+
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64 = reader.result as string;
+                    console.log('Base64 conversion successful, length:', base64.length);
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Error converting image to base64:', error);
+            throw error;
+        }
+    };
 
     const handleSaveChanges = async () => {
         if (!fullName.trim()) {
@@ -41,8 +79,27 @@ const EditProfile: React.FC = () => {
         try {
             const authUser = firebaseAuth().currentUser;
             if (authUser) {
+                let photoURL = user?.photoURL;
+
+                if (image) {
+                    // Convert image to base64
+                    photoURL = await convertImageToBase64(image);
+
+                    // Store in Firestore
+                    const userDocRef = doc(firebaseFirestore(), 'users', authUser.uid);
+                    await setDoc(userDocRef, {
+                        displayName: fullName,
+                        email: authUser.email,
+                        photoURL: photoURL,
+                    }, { merge: true });
+
+                    console.log('Profile saved to Firestore');
+                }
+
                 await updateProfile(authUser, {
                     displayName: fullName,
+                    // Don't update photoURL in Firebase Auth - base64 is too long
+                    // Photo is stored in Firestore and Redux instead
                 });
 
                 // Create a new plain object to avoid mutation issues with frozen Redux state or Firebase User object
@@ -50,6 +107,7 @@ const EditProfile: React.FC = () => {
                 const updatedUser = {
                     ...plainUser,
                     displayName: fullName,
+                    photoURL: photoURL,
                 };
                 dispatch(setUser(updatedUser));
 
@@ -86,10 +144,10 @@ const EditProfile: React.FC = () => {
                     {/* Avatar Section */}
                     <View style={styles.avatarContainer}>
                         <Image
-                            source={{ uri: 'https://i.pravatar.cc/150?img=12' }} // Placeholder image
+                            source={{ uri: image || user?.photoURL || 'https://i.pravatar.cc/150?img=12' }}
                             style={styles.avatar}
                         />
-                        <TouchableOpacity style={styles.editIconContainer}>
+                        <TouchableOpacity style={styles.editIconContainer} onPress={pickImage}>
                             <Ionicons name="pencil" size={16} color="#fff" />
                         </TouchableOpacity>
                     </View>

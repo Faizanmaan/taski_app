@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useDispatch, useSelector } from 'react-redux';
-import { firebaseAuth } from '../config/firebase';
+import { firebaseAuth, firebaseFirestore } from '../config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { setUser, setLoading } from '../store/authSlice';
 import type { RootState } from '../store';
 
@@ -36,8 +37,34 @@ const AppNavigator: React.FC = () => {
 
     useEffect(() => {
         // Listen for authentication state changes
-        const unsubscribe = onAuthStateChanged(firebaseAuth(), (user: any) => {
-            dispatch(setUser(user));
+        const unsubscribe = onAuthStateChanged(firebaseAuth(), async (user: any) => {
+            if (user) {
+                // Fetch additional profile data from Firestore
+                try {
+                    const userDocRef = doc(firebaseFirestore(), 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
+
+                    if (userDoc.exists()) {
+                        const firestoreData = userDoc.data();
+                        // Create plain object copy to avoid read-only property errors
+                        const plainUser = JSON.parse(JSON.stringify(user));
+                        // Merge Firebase Auth user with Firestore data
+                        const mergedUser = {
+                            ...plainUser,
+                            photoURL: firestoreData.photoURL || plainUser.photoURL,
+                            displayName: firestoreData.displayName || plainUser.displayName,
+                        };
+                        dispatch(setUser(mergedUser));
+                    } else {
+                        dispatch(setUser(user));
+                    }
+                } catch (error) {
+                    console.error('Error loading profile from Firestore:', error);
+                    dispatch(setUser(user));
+                }
+            } else {
+                dispatch(setUser(null));
+            }
             dispatch(setLoading(false));
         });
 
