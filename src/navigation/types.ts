@@ -1,0 +1,17 @@
+import { Task } from '../store/taskSlice';
+
+export type RootStackParamList = {
+  Welcome: undefined;
+  Login: {
+    isSignUp?: boolean;
+  };
+  Home: undefined;
+  Settings: undefined;
+  EditProfile: undefined;
+  TaskDetails: {
+    mode?: 'create' | 'edit';
+    taskId?: string;
+    task?: Task;
+    date?: string;
+  };
+};
