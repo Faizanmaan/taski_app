@@ -42,6 +42,10 @@ const Home: React.FC = () => {
         navigation.navigate('TaskDetails', { mode: 'create' });
     };
 
+    const handleViewTask = (task: any) => {
+        navigation.navigate('TaskDetails', { mode: 'view', task });
+    };
+
     const handleEditTask = (task: any) => {
         navigation.navigate('TaskDetails', { mode: 'edit', task });
     };
@@ -196,7 +200,7 @@ const Home: React.FC = () => {
                             if (selectionMode) {
                                 handleToggleTaskSelection(item.id);
                             } else {
-                                handleEditTask(item);
+                                handleViewTask(item);
                             }
                         }}
                         activeOpacity={0.9}
@@ -217,7 +221,8 @@ const Home: React.FC = () => {
                             <View style={{ flex: 1 }}>
                                 <TaskCard
                                     task={item}
-                                    onPress={() => selectionMode ? handleToggleTaskSelection(item.id) : handleEditTask(item)}
+                                    onPress={() => selectionMode ? handleToggleTaskSelection(item.id) : handleViewTask(item)}
+                                    onEdit={() => handleEditTask(item)}
                                     onToggleComplete={() => toggleComplete(item.id)}
                                     onDelete={() => handleDeleteTask(item.id, item.title)}
                                 />

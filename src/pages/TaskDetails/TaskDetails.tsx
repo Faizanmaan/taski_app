@@ -24,7 +24,8 @@ type TaskDetailsRouteProp = RouteProp<RootStackParamList, 'TaskDetails'>;
 const TaskDetails = () => {
     const navigation = useNavigation();
     const route = useRoute<TaskDetailsRouteProp>();
-    const { task, date } = route.params || {};
+    const { task, date, mode: initialMode } = route.params || {};
+    const [mode, setMode] = useState(initialMode || 'create');
 
     const [title, setTitle] = useState('');
     const [notes, setNotes] = useState('');
@@ -133,14 +134,10 @@ const TaskDetails = () => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={COLORS.light.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>{task ? 'Edit Task' : 'Add New Task'}</Text>
-                {task ? (
-                    <TouchableOpacity onPress={handleDelete}>
-                        <Ionicons name="trash-outline" size={24} color={COLORS.light.error} />
-                    </TouchableOpacity>
-                ) : (
-                    <View style={{ width: 24 }} />
-                )}
+                <Text style={styles.headerTitle}>
+                    {mode === 'view' ? 'Task Details' : task ? 'Edit Task' : 'Add New Task'}
+                </Text>
+                <View style={{ width: 24 }} />
             </View>
 
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
@@ -153,6 +150,7 @@ const TaskDetails = () => {
                         onChangeText={setTitle}
                         placeholder="What needs to be done?"
                         placeholderTextColor={COLORS.light.textSecondary}
+                        editable={mode !== 'view'}
                     />
                 </View>
 
@@ -167,6 +165,7 @@ const TaskDetails = () => {
                         placeholderTextColor={COLORS.light.textSecondary}
                         multiline
                         textAlignVertical="top"
+                        editable={mode !== 'view'}
                     />
                 </View>
 
@@ -180,7 +179,8 @@ const TaskDetails = () => {
                                 tag === 'normal' && styles.tagButtonActive,
                                 { marginRight: SPACING.md }
                             ]}
-                            onPress={() => setTag('normal')}>
+                            onPress={() => setTag('normal')}
+                            disabled={mode === 'view'}>
                             <Text style={[
                                 styles.tagText,
                                 tag === 'normal' && styles.tagTextActive
@@ -192,7 +192,8 @@ const TaskDetails = () => {
                                 tag === 'urgent' && styles.tagButtonActive,
                                 { backgroundColor: tag === 'urgent' ? '#FFEbee' : '#F5F5F5' }
                             ]}
-                            onPress={() => setTag('urgent')}>
+                            onPress={() => setTag('urgent')}
+                            disabled={mode === 'view'}>
                             <Text style={[
                                 styles.tagText,
                                 tag === 'urgent' && { color: COLORS.light.error }
@@ -211,25 +212,37 @@ const TaskDetails = () => {
                                 {remindAt ? formatReminderDate(remindAt) : 'No reminder set'}
                             </Text>
                         </View>
-                        <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
+                        <TouchableOpacity
+                            onPress={() => setDatePickerVisible(true)}
+                            disabled={mode === 'view'}>
                             <Ionicons name="create-outline" size={24} color={COLORS.light.primary} />
                         </TouchableOpacity>
                     </View>
                 </View>
             </ScrollView>
 
-            <View style={styles.footer}>
-                <TouchableOpacity
-                    style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-                    onPress={handleSave}
-                    disabled={loading}>
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.saveButtonText}>Save Task</Text>
-                    )}
-                </TouchableOpacity>
-            </View>
+            {mode === 'view' ? (
+                <View style={styles.footer}>
+                    <TouchableOpacity
+                        style={styles.saveButton}
+                        onPress={() => setMode('edit')}>
+                        <Text style={styles.saveButtonText}>Edit Task</Text>
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <View style={styles.footer}>
+                    <TouchableOpacity
+                        style={[styles.saveButton, loading && styles.saveButtonDisabled]}
+                        onPress={handleSave}
+                        disabled={loading}>
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.saveButtonText}>Save Task</Text>
+                        )}
+                    </TouchableOpacity>
+                </View>
+            )}
 
             <CustomDatePicker
                 visible={isDatePickerVisible}

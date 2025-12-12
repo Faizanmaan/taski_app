@@ -7,6 +7,7 @@ import type { Task } from '../../store/taskSlice';
 interface TaskCardProps {
     task: Task;
     onPress: () => void;
+    onEdit: () => void;
     onToggleComplete: () => void;
     onDelete: () => void;
 }
@@ -14,6 +15,7 @@ interface TaskCardProps {
 const TaskCard: React.FC<TaskCardProps> = ({
     task,
     onPress,
+    onEdit,
     onToggleComplete,
     onDelete,
 }) => {
@@ -39,7 +41,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
     const handleEdit = () => {
         closeMenu();
-        onPress();
+        onEdit();
     };
 
     const handleDelete = () => {

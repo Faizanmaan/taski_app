@@ -10,7 +10,7 @@ export type RootStackParamList = {
   EditProfile: undefined;
   ChangePassword: undefined;
   TaskDetails: {
-    mode?: 'create' | 'edit';
+    mode?: 'create' | 'edit' | 'view';
     taskId?: string;
     task?: Task;
     date?: string;
