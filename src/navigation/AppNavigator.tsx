@@ -16,6 +16,7 @@ import Home from '../pages/Home/Home';
 import TaskDetails from '../pages/TaskDetails/TaskDetails';
 import Settings from '../pages/Settings/Settings';
 import EditProfile from '../pages/EditProfile/EditProfile';
+import ChangePassword from '../pages/ChangePassword/ChangePassword';
 
 import type { RootStackParamList } from './types';
 
@@ -108,6 +109,7 @@ const AppNavigator: React.FC = () => {
                         <Stack.Screen name="Home" component={Home} />
                         <Stack.Screen name="Settings" component={Settings} />
                         <Stack.Screen name="EditProfile" component={EditProfile} />
+                        <Stack.Screen name="ChangePassword" component={ChangePassword} />
                         <Stack.Screen
                             name="TaskDetails"
                             component={TaskDetails}

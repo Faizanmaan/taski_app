@@ -24,9 +24,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
     const tagColor = task.tag === 'urgent' ? COLORS.light.urgent : COLORS.light.normal;
 
     const handleMenuPress = () => {
-        menuButtonRef.current?.measure((fx, fy, width, height, px, py) => {
+        menuButtonRef.current?.measureInWindow((px, py, width, height) => {
             setMenuPosition({
-                top: py + height, // Position below the button
+                top: py + height + 4, // Position just below the button
                 right: Dimensions.get('window').width - px - width, // Align right edge
             });
             setMenuVisible(true);

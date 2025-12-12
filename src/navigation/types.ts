@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Home: undefined;
   Settings: undefined;
   EditProfile: undefined;
+  ChangePassword: undefined;
   TaskDetails: {
     mode?: 'create' | 'edit';
     taskId?: string;

@@ -36,7 +36,7 @@ const Settings: React.FC = () => {
     };
 
     const handleChangePassword = () => {
-        Alert.alert('Info', 'Change Password functionality to be implemented.');
+        navigation.navigate('ChangePassword' as never);
     };
 
     return (
