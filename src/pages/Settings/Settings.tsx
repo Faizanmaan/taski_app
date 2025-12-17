@@ -154,10 +154,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.md,
         marginHorizontal: -SPACING.lg, // Extend to edges
         marginBottom: SPACING.md,
+        alignItems: 'center', // Center content horizontally
     },
     sectionHeaderText: {
         fontSize: 14,
         color: COLORS.light.textSecondary,
+        textAlign: 'center', // Ensure text is centered
     },
     menuContainer: {
         marginBottom: SPACING.xl,

@@ -16,7 +16,7 @@ import { useDispatch } from 'react-redux';
 import { firebaseAuth, firebaseFirestore } from '../../config/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
-import { setUser, setLoading, setError } from '../../store/authSlice';
+import { setUser, setLoading, setError, setIsRegistering } from '../../store/authSlice';
 import Button from '../../components/Button/Button';
 import Input from '../../components/Input/Input';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants/theme';
@@ -35,6 +35,7 @@ const Login: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isSignUp, setIsSignUp] = useState(route.params?.isSignUp ?? false);
     const [loading, setLoadingState] = useState(false);
+    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
     const handleEmailAuth = async () => {
         if (!email || !password) {
@@ -47,12 +48,31 @@ const Login: React.FC = () => {
             return;
         }
 
+        if (isSignUp && !isTermsAccepted) {
+            Alert.alert('Error', 'Please agree to the Terms & Conditions to register.');
+            return;
+        }
+
+        // Validate password length BEFORE calling Firebase
+        if (isSignUp && password.length < 6) {
+            Alert.alert('Error', 'Password should be at least 6 characters.');
+            return;
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            Alert.alert('Error', 'Please enter a valid email address.');
+            return;
+        }
+
         setLoadingState(true);
-        dispatch(setLoading(true));
+        // dispatch(setLoading(true)); // Removed to prevent AppNavigator from unmounting
 
         try {
             let userCredential;
             if (isSignUp) {
+                dispatch(setIsRegistering(true)); // Prevent auto-navigation to Home
                 // Create user
                 userCredential = await createUserWithEmailAndPassword(
                     firebaseAuth(),
@@ -88,6 +108,7 @@ const Login: React.FC = () => {
 
                 // Sign out immediately to prevent auto-login
                 await signOut(firebaseAuth());
+                dispatch(setIsRegistering(false)); // Allow navigation updates again
 
                 Alert.alert(
                     'Success',
@@ -113,7 +134,8 @@ const Login: React.FC = () => {
             }
             dispatch(setUser(userCredential.user));
         } catch (error: any) {
-            console.error('Auth error:', error);
+            dispatch(setIsRegistering(false)); // Reset on error
+            // console.error('Auth error:', error); // Removed to keep console clean
 
             // User-friendly error messages
             let errorMessage = 'An error occurred. Please try again.';
@@ -136,9 +158,10 @@ const Login: React.FC = () => {
 
             dispatch(setError(errorMessage));
             Alert.alert('Error', errorMessage);
+            return; // Exit function to prevent any further execution
         } finally {
             setLoadingState(false);
-            dispatch(setLoading(false));
+            // dispatch(setLoading(false)); // Removed
         }
     };
 
@@ -165,57 +188,81 @@ const Login: React.FC = () => {
                     </View>
 
                     <View style={styles.content}>
-                        <Text style={styles.title}>
-                            {isSignUp ? 'Create Account' : 'Welcome Back.'}
-                        </Text>
-                        <Text style={styles.subtitle}>
-                            {isSignUp
-                                ? 'Sign up to get started with Taski'
-                                : 'It’s Nice too see you again, let’s get going'}
-                        </Text>
+                        <View>
+                            <Text style={styles.title}>
+                                {isSignUp ? 'Join us today.' : 'Welcome Back.'}
+                            </Text>
+                            <Text style={styles.subtitle}>
+                                {isSignUp
+                                    ? 'It’s Nice too see you, let’s start'
+                                    : 'It’s Nice too see you again, let’s get going'}
+                            </Text>
 
-                        <View style={styles.form}>
-                            {isSignUp && (
+                            <View style={styles.form}>
+                                {isSignUp && (
+                                    <Input
+                                        label="Full Name"
+                                        placeholder="Enter your full name"
+                                        value={fullName}
+                                        onChangeText={setFullName}
+                                        autoCapitalize="words"
+                                        autoComplete="name"
+                                    />
+                                )}
+
                                 <Input
-                                    label="Full Name"
-                                    placeholder="Enter your full name"
-                                    value={fullName}
-                                    onChangeText={setFullName}
-                                    autoCapitalize="words"
-                                    autoComplete="name"
+                                    label="Email Address"
+                                    placeholder="yourname@email.com"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    autoComplete="email"
                                 />
-                            )}
 
-                            <Input
-                                label="Email Address"
-                                placeholder="yourname@email.com"
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                autoComplete="email"
-                            />
+                                {isSignUp && (
+                                    <Input
+                                        label="Phone Number"
+                                        placeholder="Enter your phone number"
+                                        value={phoneNumber}
+                                        onChangeText={(text) => setPhoneNumber(text.replace(/[^0-9+]/g, ''))}
+                                        keyboardType="phone-pad"
+                                        autoComplete="tel"
+                                    />
+                                )}
 
-                            {isSignUp && (
                                 <Input
-                                    label="Phone Number"
-                                    placeholder="Enter your phone number"
-                                    value={phoneNumber}
-                                    onChangeText={(text) => setPhoneNumber(text.replace(/[^0-9+]/g, ''))}
-                                    keyboardType="phone-pad"
-                                    autoComplete="tel"
+                                    label="Password"
+                                    placeholder="Input password here..."
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry
+                                    autoCapitalize="none"
                                 />
-                            )}
 
-                            <Input
-                                label="Password"
-                                placeholder="Input password here..."
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                                autoCapitalize="none"
-                            />
+                                {isSignUp && (
+                                    <TouchableOpacity
+                                        style={styles.termsContainer}
+                                        onPress={() => setIsTermsAccepted(!isTermsAccepted)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <View style={[
+                                            styles.checkbox,
+                                            isTermsAccepted && styles.checkboxChecked
+                                        ]}>
+                                            {isTermsAccepted && (
+                                                <Text style={styles.checkmark}>✓</Text>
+                                            )}
+                                        </View>
+                                        <Text style={styles.termsText}>
+                                            I Agree with <Text style={styles.termsHighlight}>Term & Conditions</Text>
+                                        </Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        </View>
 
+                        <View style={styles.bottomSection}>
                             <Button
                                 title={isSignUp ? 'Register' : 'Login'}
                                 onPress={handleEmailAuth}
@@ -264,7 +311,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: TYPOGRAPHY.fontSize.lg,
-        fontWeight: TYPOGRAPHY.fontWeight.semibold,
+        fontWeight: TYPOGRAPHY.fontWeight.bold,
         color: COLORS.light.text,
     },
     placeholder: {
@@ -273,18 +320,22 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         padding: SPACING.lg,
-        paddingTop: SPACING.xl,
+        paddingTop: SPACING.sm,
+        justifyContent: 'space-between',
+    },
+    bottomSection: {
+        marginTop: SPACING.xl,
     },
     title: {
-        fontSize: 32, // Larger title as per image
+        fontSize: 26, // Larger title as per image
         fontWeight: TYPOGRAPHY.fontWeight.bold,
         color: COLORS.light.text,
-        marginBottom: SPACING.sm,
+        marginBottom: SPACING.xs,
     },
     subtitle: {
-        fontSize: TYPOGRAPHY.fontSize.md,
+        fontSize: TYPOGRAPHY.fontSize.sm,
         color: COLORS.light.textSecondary,
-        marginBottom: SPACING.xxl,
+        marginBottom: SPACING.lg,
         lineHeight: 24,
     },
     form: {
@@ -294,6 +345,7 @@ const styles = StyleSheet.create({
         marginTop: SPACING.xl,
         marginBottom: SPACING.lg,
         backgroundColor: COLORS.light.primary, // Green
+        borderRadius: 4,
     },
     footer: {
         flexDirection: 'row',
@@ -301,13 +353,42 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     footerText: {
-        fontSize: TYPOGRAPHY.fontSize.md,
+        fontSize: TYPOGRAPHY.fontSize.sm,
         color: COLORS.light.textSecondary,
     },
     footerLink: {
-        fontSize: TYPOGRAPHY.fontSize.md,
-        fontWeight: TYPOGRAPHY.fontWeight.semibold,
+        fontSize: TYPOGRAPHY.fontSize.sm,
         color: COLORS.light.primary, // Green
+    },
+    termsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: SPACING.sm,
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderWidth: 1,
+        borderColor: COLORS.light.primary,
+        borderRadius: 4,
+        marginRight: SPACING.sm,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    checkboxChecked: {
+        backgroundColor: COLORS.light.primary,
+    },
+    checkmark: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    termsText: {
+        fontSize: TYPOGRAPHY.fontSize.sm,
+        color: COLORS.light.textSecondary,
+    },
+    termsHighlight: {
+        color: COLORS.light.primary,
     },
 });
 

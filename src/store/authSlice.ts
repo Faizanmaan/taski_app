@@ -5,6 +5,7 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isRegistering: boolean;
   error: string | null;
 }
 
@@ -12,6 +13,7 @@ const initialState: AuthState = {
   user: null,
   isLoading: true,
   isAuthenticated: false,
+  isRegistering: false,
   error: null,
 };
 
@@ -27,6 +29,9 @@ const authSlice = createSlice({
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
+    },
+    setIsRegistering: (state, action: PayloadAction<boolean>) => {
+      state.isRegistering = action.payload;
     },
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
@@ -44,6 +49,6 @@ const authSlice = createSlice({
   },
 });
 
-export const {setUser, setLoading, setError, clearUser, clearError} =
+export const {setUser, setLoading, setIsRegistering, setError, clearUser, clearError} =
   authSlice.actions;
 export default authSlice.reducer;

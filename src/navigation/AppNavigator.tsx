@@ -24,7 +24,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
     const dispatch = useDispatch();
-    const { isAuthenticated, isLoading } = useSelector(
+    const { isAuthenticated, isLoading, isRegistering } = useSelector(
         (state: RootState) => state.auth,
     );
     const [showSplash, setShowSplash] = useState(true);
@@ -75,22 +75,18 @@ const AppNavigator: React.FC = () => {
         setShowSplash(false);
     };
 
-    // Show splash screen for 1 second on app launch
-    if (showSplash) {
+    // Show splash screen until BOTH timer finishes AND auth completes
+    if (showSplash || isLoading) {
         return <Splash onFinish={handleSplashFinish} />;
     }
 
-    // Show loading state after splash
-    if (isLoading) {
-        return null;
-    }
     return (
         <NavigationContainer>
             <Stack.Navigator
                 screenOptions={{
                     headerShown: false,
                 }}>
-                {!isAuthenticated ? (
+                {!isAuthenticated || isRegistering ? (
                     <Stack.Group screenOptions={{ headerShown: false }}>
                         {wasAuthenticated.current ? (
                             <>
