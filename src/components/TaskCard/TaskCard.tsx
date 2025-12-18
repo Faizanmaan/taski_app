@@ -28,8 +28,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
     const handleMenuPress = () => {
         menuButtonRef.current?.measureInWindow((px, py, width, height) => {
             setMenuPosition({
-                top: py + height + 4, // Position just below the button
-                right: Dimensions.get('window').width - px - width, // Align right edge
+                top: py + height + 4,
+                right: Dimensions.get('window').width - px - width,
             });
             setMenuVisible(true);
         });
@@ -47,8 +47,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
     const handleDelete = () => {
         console.log('TaskCard: handleDelete called');
         setMenuVisible(false);
-        // Add a small delay to allow the modal to close before triggering the alert
-        // This prevents the alert from being blocked or dismissed by the modal unmounting
         setTimeout(() => {
             console.log('TaskCard: triggering onDelete prop');
             onDelete();
@@ -93,7 +91,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
                         onPress={handleMenuPress}
                         style={styles.menuButton}
                     >
-                        <Ionicons name="ellipsis-vertical" size={20} color={COLORS.light.textSecondary} />
+                        <Ionicons name="ellipsis-vertical" size={18} color={COLORS.light.textLime} />
                     </TouchableOpacity>
                 </View>
 
@@ -162,10 +160,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
 const styles = StyleSheet.create({
     cardContainer: {
-        marginBottom: SPACING.md,
+        marginBottom: SPACING.xs,
     },
     card: {
-        // Removed background color and shadow
         padding: SPACING.lg,
         paddingBottom: SPACING.md,
     },
@@ -176,10 +173,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 4,
+        marginBottom: 3,
     },
     title: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         color: COLORS.light.text,
         flex: 1,
@@ -197,11 +194,11 @@ const styles = StyleSheet.create({
     dateText: {
         fontSize: 12,
         color: COLORS.light.textSecondary,
-        marginBottom: SPACING.sm,
+        marginBottom: 6,
     },
     notes: {
         fontSize: 14,
-        color: COLORS.light.textSecondary,
+        color: '#0B0A11',
         marginBottom: SPACING.md,
         lineHeight: 20,
     },
@@ -222,10 +219,9 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#fff',
     },
-    // Menu Styles
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'transparent', // Transparent overlay
+        backgroundColor: 'transparent',
     },
     menuContainer: {
         backgroundColor: '#fff',
@@ -256,7 +252,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
     },
     deleteText: {
-        color: COLORS.light.error,
+        color: '#BA1735',
     },
 });
 

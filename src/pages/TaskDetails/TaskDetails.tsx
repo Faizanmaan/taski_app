@@ -16,6 +16,7 @@ import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../../constants/them
 import { doc, setDoc, updateDoc, deleteDoc, Timestamp, collection, addDoc } from 'firebase/firestore';
 import { firebaseFirestore, firebaseAuth } from '../../config/firebase';
 import CustomDatePicker from '../../components/CustomDatePicker/CustomDatePicker';
+import { Dropdown } from 'react-native-element-dropdown';
 
 import { RootStackParamList } from '../../navigation/types';
 
@@ -27,9 +28,14 @@ const TaskDetails = () => {
     const { task, date, mode: initialMode } = route.params || {};
     const [mode, setMode] = useState(initialMode || 'create');
 
+    const tagData = [
+        { label: 'Normal', value: 'normal' },
+        { label: 'Urgent', value: 'urgent' },
+    ];
+
     const [title, setTitle] = useState('');
     const [notes, setNotes] = useState('');
-    const [tag, setTag] = useState<'normal' | 'urgent'>('normal');
+    const [tag, setTag] = useState<'normal' | 'urgent' | null>(null);
     const [remindAt, setRemindAt] = useState<Date | null>(null);
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -67,7 +73,7 @@ const TaskDetails = () => {
             const taskData = {
                 title,
                 notes,
-                tag,
+                tag: tag || 'normal', // Default to normal if not selected
                 remindAt: remindAt ? Timestamp.fromDate(remindAt) : null,
                 updatedAt: Timestamp.now(),
                 userId: user.uid,
@@ -132,7 +138,7 @@ const TaskDetails = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color={COLORS.light.text} />
+                    <Ionicons name="arrow-back" size={24} color="#B7B7B7" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>
                     {mode === 'view' ? 'Task Details' : task ? 'Edit Task' : 'Add New Task'}
@@ -148,7 +154,7 @@ const TaskDetails = () => {
                         style={styles.input}
                         value={title}
                         onChangeText={setTitle}
-                        placeholder="What needs to be done?"
+                        placeholder="Input task title..."
                         placeholderTextColor={COLORS.light.textSecondary}
                         editable={mode !== 'view'}
                     />
@@ -161,7 +167,7 @@ const TaskDetails = () => {
                         style={[styles.input, styles.textArea]}
                         value={notes}
                         onChangeText={setNotes}
-                        placeholder="Add some details..."
+                        placeholder="Input task notes..."
                         placeholderTextColor={COLORS.light.textSecondary}
                         multiline
                         textAlignVertical="top"
@@ -172,34 +178,24 @@ const TaskDetails = () => {
                 {/* Tags */}
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Tags</Text>
-                    <View style={styles.tagsContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.tagButton,
-                                tag === 'normal' && styles.tagButtonActive,
-                                { marginRight: SPACING.md }
-                            ]}
-                            onPress={() => setTag('normal')}
-                            disabled={mode === 'view'}>
-                            <Text style={[
-                                styles.tagText,
-                                tag === 'normal' && styles.tagTextActive
-                            ]}>Normal</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[
-                                styles.tagButton,
-                                tag === 'urgent' && styles.tagButtonActive,
-                                { backgroundColor: tag === 'urgent' ? '#FFEbee' : '#F5F5F5' }
-                            ]}
-                            onPress={() => setTag('urgent')}
-                            disabled={mode === 'view'}>
-                            <Text style={[
-                                styles.tagText,
-                                tag === 'urgent' && { color: COLORS.light.error }
-                            ]}>Urgent</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <Dropdown
+                        style={styles.dropdown}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={tagData}
+                        search={false}
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="-Select tags-"
+                        value={tag}
+                        onChange={item => {
+                            setTag(item.value as 'normal' | 'urgent');
+                        }}
+                        disable={mode === 'view'}
+                    />
                 </View>
 
                 {/* Remind Me */}
@@ -215,7 +211,7 @@ const TaskDetails = () => {
                         <TouchableOpacity
                             onPress={() => setDatePickerVisible(true)}
                             disabled={mode === 'view'}>
-                            <Ionicons name="create-outline" size={24} color={COLORS.light.primary} />
+                            <Ionicons name="create-outline" size={24} color={COLORS.light.textSecondary} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -266,8 +262,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.md,
         backgroundColor: COLORS.light.background,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.light.border,
     },
     backButton: {
         padding: 4,
@@ -287,10 +281,8 @@ const styles = StyleSheet.create({
         marginBottom: SPACING.lg,
     },
     label: {
-        fontSize: 14,
-        color: COLORS.light.textSecondary,
+        fontSize: 12,
         marginBottom: SPACING.xs,
-        fontWeight: '500',
     },
     input: {
         borderWidth: 1,
@@ -298,42 +290,45 @@ const styles = StyleSheet.create({
         borderRadius: BORDER_RADIUS.sm,
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.sm + 4,
-        fontSize: 16,
+        fontSize: 14,
         color: COLORS.light.text,
         backgroundColor: '#fff',
     },
     textArea: {
-        minHeight: 120,
+        minHeight: 100,
     },
-    tagsContainer: {
-        flexDirection: 'row',
-    },
-    tagButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-        backgroundColor: '#F5F5F5',
+    dropdown: {
+        height: 50,
+        borderColor: COLORS.light.border,
         borderWidth: 1,
-        borderColor: 'transparent',
+        borderRadius: BORDER_RADIUS.sm,
+        paddingHorizontal: 8,
+        backgroundColor: '#fff',
     },
-    tagButtonActive: {
-        backgroundColor: '#E8F5E9',
-        borderColor: COLORS.light.primary,
+    icon: {
+        marginRight: 5,
     },
-    tagText: {
+    placeholderStyle: {
         fontSize: 14,
         color: COLORS.light.textSecondary,
-        fontWeight: '500',
     },
-    tagTextActive: {
-        color: COLORS.light.primary,
-        fontWeight: 'bold',
+    selectedTextStyle: {
+        fontSize: 14,
+        color: COLORS.light.text,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
     },
     sectionHeader: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
         color: COLORS.light.text,
-        marginBottom: SPACING.sm,
+        marginBottom: SPACING.md,
     },
     reminderBox: {
         flexDirection: 'row',
@@ -358,13 +353,11 @@ const styles = StyleSheet.create({
     footer: {
         padding: SPACING.lg,
         backgroundColor: COLORS.light.background,
-        borderTopWidth: 1,
-        borderTopColor: COLORS.light.border,
     },
     saveButton: {
         backgroundColor: COLORS.light.primary,
         paddingVertical: 16,
-        borderRadius: BORDER_RADIUS.md,
+        borderRadius: BORDER_RADIUS.sm,
         alignItems: 'center',
     },
     saveButtonDisabled: {

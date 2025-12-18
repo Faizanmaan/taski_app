@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { firebaseAuth, firebaseFirestore } from '../../config/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
@@ -181,7 +182,7 @@ const Login: React.FC = () => {
                     {/* Header with Back Button */}
                     <View style={styles.header}>
                         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                            <Text style={styles.backButtonText}>←</Text>
+                            <Ionicons name="arrow-back" size={24} color="#B7B7B7" />
                         </TouchableOpacity>
                         <Text style={styles.headerTitle}>{isSignUp ? 'Register' : 'Login'}</Text>
                         <View style={styles.placeholder} />
@@ -262,28 +263,29 @@ const Login: React.FC = () => {
                             </View>
                         </View>
 
-                        <View style={styles.bottomSection}>
-                            <Button
-                                title={isSignUp ? 'Register' : 'Login'}
-                                onPress={handleEmailAuth}
-                                loading={loading}
-                                style={styles.authButton}
-                            />
-
-                            <View style={styles.footer}>
-                                <Text style={styles.footerText}>
-                                    {isSignUp ? 'Already have Account? ' : 'Don’t have an account? '}
-                                </Text>
-                                <TouchableOpacity onPress={toggleMode}>
-                                    <Text style={styles.footerLink}>
-                                        {isSignUp ? 'Login' : 'Register'}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            <View style={[styles.bottomSection, { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.lg }]}>
+                <Button
+                    title={isSignUp ? 'Register' : 'Login'}
+                    onPress={handleEmailAuth}
+                    loading={loading}
+                    style={styles.authButton}
+                />
+
+                <View style={styles.footer}>
+                    <Text style={styles.footerText}>
+                        {isSignUp ? 'Already have Account? ' : 'Don’t have an account? '}
+                    </Text>
+                    <TouchableOpacity onPress={toggleMode}>
+                        <Text style={styles.footerLink}>
+                            {isSignUp ? 'Login' : 'Register'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </SafeAreaView>
     );
 };

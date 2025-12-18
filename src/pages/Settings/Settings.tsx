@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { firebaseAuth } from '../../config/firebase';
 import { signOut } from 'firebase/auth';
 import { clearUser } from '../../store/authSlice';
-import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../../constants/theme';
+import { COLORS, SPACING } from '../../constants/theme';
 import { globalStyles } from '../../styles/globalStyles';
 import type { RootState } from '../../store';
 
@@ -44,7 +44,7 @@ const Settings: React.FC = () => {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color={COLORS.light.text} />
+                    <Ionicons name="arrow-back" size={24} color="#B7B7B7" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Settings</Text>
                 <View style={{ width: 24 }} />
@@ -67,7 +67,7 @@ const Settings: React.FC = () => {
                         style={styles.editButton}
                         onPress={() => navigation.navigate('EditProfile' as never)}
                     >
-                        <Feather name="edit" size={20} color={COLORS.light.textSecondary} />
+                        <Feather name="edit" size={20} color="#B7B7B7" />
                     </TouchableOpacity>
                 </View>
 
@@ -80,7 +80,7 @@ const Settings: React.FC = () => {
                 <View style={styles.menuContainer}>
                     <TouchableOpacity style={styles.menuItem} onPress={handleChangePassword}>
                         <Text style={styles.menuItemText}>Change Password</Text>
-                        <Ionicons name="chevron-forward" size={20} color={COLORS.light.textSecondary} />
+                        <Ionicons name="chevron-forward" size={20} color="#B7B7B7" />
                     </TouchableOpacity>
 
                     <View style={styles.divider} />
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
         color: COLORS.light.text,
     },
     content: {
-        padding: SPACING.lg,
+        padding: SPACING.md,
     },
     profileContainer: {
         flexDirection: 'row',
@@ -172,10 +172,10 @@ const styles = StyleSheet.create({
     },
     menuItemText: {
         fontSize: 16,
-        color: COLORS.light.text,
+        color: COLORS.light.textSecondary,
     },
     signOutText: {
-        color: COLORS.light.error,
+        color: '#BA1735',
     },
     divider: {
         height: 1,
@@ -186,12 +186,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: SPACING.lg,
-        // borderTopWidth: 1,
-        // borderTopColor: COLORS.light.border,
     },
     footerText: {
         fontSize: 14,
-        color: COLORS.light.textSecondary,
+        color: '#afafb5ff',
     },
 });
 

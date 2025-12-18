@@ -8,14 +8,11 @@ import {
     Alert,
     TextInput,
     Modal,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useDispatch } from 'react-redux';
-import { firebaseAuth } from '../../config/firebase';
-import { signOut } from 'firebase/auth';
-import { clearUser } from '../../store/authSlice';
 import { useTasks } from '../../hooks/useTasks';
 import TaskCard from '../../components/TaskCard/TaskCard';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants/theme';
@@ -23,6 +20,7 @@ import { globalStyles } from '../../styles/globalStyles';
 import type { RootStackParamList } from '../../navigation/types';
 import { Ionicons, Octicons } from '@expo/vector-icons';
 import CustomDatePicker from '../../components/CustomDatePicker/CustomDatePicker';
+import { Shadow } from 'react-native-shadow-2';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -31,7 +29,6 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
 
 const Home: React.FC = () => {
     const navigation = useNavigation<HomeScreenNavigationProp>();
-    const dispatch = useDispatch();
     const { tasks, isLoading, deleteTask, toggleComplete } = useTasks();
     const [isCalendarVisible, setCalendarVisible] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
@@ -129,11 +126,12 @@ const Home: React.FC = () => {
 
     const renderEmptyState = () => (
         <View style={styles.emptyState}>
-            {/* Illustration Placeholder */}
             <View style={styles.illustration}>
-                <View style={styles.illustrationCard} />
-                <View style={[styles.illustrationCard, styles.illustrationCard2]} />
-                <Ionicons name="add" size={40} color={COLORS.light.primary} style={styles.illustrationIcon} />
+                <Image
+                    source={require('../../assets/empty_state.png')}
+                    style={styles.emptyStateImage}
+                    resizeMode="contain"
+                />
             </View>
             <Text style={styles.emptyStateTitle}>No Task</Text>
             <Text style={styles.emptyStateSubtitle}>
@@ -144,7 +142,6 @@ const Home: React.FC = () => {
 
     return (
         <SafeAreaView style={globalStyles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 {selectionMode ? (
                     <TouchableOpacity onPress={handleCancelSelection}>
@@ -152,7 +149,7 @@ const Home: React.FC = () => {
                     </TouchableOpacity>
                 ) : (
                     <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-                        <Ionicons name="menu-outline" size={28} color={COLORS.light.textSecondary} />
+                        <Ionicons name="menu-outline" size={28} color={COLORS.light.textLime} />
                     </TouchableOpacity>
                 )}
 
@@ -160,35 +157,32 @@ const Home: React.FC = () => {
                     {selectionMode ? (
                         <Text style={styles.selectionTitle}>{selectedTasks.length} Selected</Text>
                     ) : (
-                        <>
-                            <Text style={styles.logoText}>taski</Text>
-                            <View style={styles.logoIcon}>
-                                <View style={styles.logoSquare} />
-                                <View style={[styles.logoSquare, { opacity: 0.5 }]} />
-                            </View>
-                        </>
+                        <Image
+                            source={require('../../assets/taski_logo.png')}
+                            style={styles.logoImage}
+                            resizeMode="contain"
+                        />
                     )}
                 </View>
 
                 {selectionMode ? (
                     <TouchableOpacity onPress={handleDeleteSelected}>
-                        <Ionicons name="trash-outline" size={24} color={COLORS.light.error} />
+                        <Ionicons name="trash-outline" size={18} color={COLORS.light.error} />
                     </TouchableOpacity>
                 ) : (
                     <TouchableOpacity onPress={handleMenuPress}>
-                        <Ionicons name="ellipsis-vertical" size={24} color={COLORS.light.textSecondary} />
+                        <Ionicons name="ellipsis-vertical" size={18} color={COLORS.light.textLime} />
                     </TouchableOpacity>
                 )}
             </View>
 
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
+            <View style={[styles.searchContainer, { borderWidth: tasks.length === 0 ? 0 : 1 }]}>
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Search task here..."
                     placeholderTextColor={COLORS.light.textSecondary}
                 />
-                <Ionicons name="search-outline" size={24} color={COLORS.light.textSecondary} style={styles.searchIcon} />
+                <Ionicons name="search-outline" size={24} color={'#B7B7B7'} style={styles.searchIcon} />
             </View>
 
             <FlatList
@@ -235,27 +229,31 @@ const Home: React.FC = () => {
                 refreshing={isLoading}
             />
 
-            {/* Bottom Navigation */}
             <View style={styles.bottomNav}>
                 <TouchableOpacity style={styles.navItem}>
                     <Octicons name="home" size={24} color={COLORS.light.primary} />
-                    <Text style={[styles.navLabel, { color: COLORS.light.primary }]}>List View</Text>
+                    <Text style={[styles.navLabel, { color: '#000' }]}>List View</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.addButtonContainer} onPress={handleAddTask}>
-                    <View style={styles.addButton}>
-                        <Octicons name="home" size={24} color="#fff" />
-                    </View>
+                    <Shadow
+                        distance={3}
+                        startColor={'rgba(0,0,0,0.03)'}
+                        offset={[0, -3]}
+                    >
+                        <View style={styles.addButton}>
+                            <Octicons name="home" size={24} color="#fff" />
+                        </View>
+                    </Shadow>
                     <Text style={styles.navLabel}>Add Task</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.navItem} onPress={handleCalendarPress}>
-                    <Octicons name="calendar" size={24} color={COLORS.light.textSecondary} />
+                    <Octicons name="calendar" size={24} color={COLORS.light.textLime} />
                     <Text style={styles.navLabel}>Calendar View</Text>
                 </TouchableOpacity>
             </View>
 
-            {/* Menu Modal */}
             <Modal
                 visible={menuVisible}
                 transparent
@@ -302,31 +300,21 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    logoText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: COLORS.light.text,
-        marginRight: 4,
-    },
-    logoIcon: {
-        flexDirection: 'row',
-        gap: 2,
-    },
-    logoSquare: {
-        width: 8,
-        height: 8,
-        backgroundColor: COLORS.light.primary,
-        borderRadius: 1,
+    logoImage: {
+        width: 66,
+        height: 17,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         marginHorizontal: SPACING.lg,
-        marginBottom: SPACING.md,
+        marginBottom: SPACING.xs,
         borderWidth: 1,
         borderColor: '#D2D2D2',
         borderRadius: 4,
         paddingHorizontal: SPACING.md,
+        paddingVertical: SPACING.xs,
+        marginTop: SPACING.md,
     },
     searchInput: {
         flex: 1,
@@ -350,36 +338,25 @@ const styles = StyleSheet.create({
     illustration: {
         width: 120,
         height: 80,
-        marginBottom: SPACING.xl,
+        marginBottom: SPACING.lg,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    illustrationCard: {
-        width: 100,
-        height: 12,
-        backgroundColor: '#F0F0F0',
-        borderRadius: 6,
-        marginBottom: 8,
-    },
-    illustrationCard2: {
-        width: 80,
-    },
-    illustrationIcon: {
-        position: 'absolute',
-        right: 0,
-        bottom: -10,
+    emptyStateImage: {
+        width: 202,
+        height: 100,
     },
     emptyStateTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         color: COLORS.light.text,
         marginBottom: SPACING.sm,
     },
     emptyStateSubtitle: {
-        fontSize: TYPOGRAPHY.fontSize.md,
+        fontSize: TYPOGRAPHY.fontSize.sm,
         color: COLORS.light.textSecondary,
         textAlign: 'center',
-        lineHeight: 22,
+        lineHeight: 18,
     },
     bottomNav: {
         flexDirection: 'row',
@@ -387,8 +364,6 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         paddingVertical: SPACING.sm,
         backgroundColor: COLORS.light.background,
-        // borderTopWidth: 1,
-        // borderTopColor: '#F0F0F0',
     },
     navItem: {
         flex: 1,
@@ -396,14 +371,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     navLabel: {
-        fontSize: 10,
-        color: COLORS.light.textSecondary,
+        fontSize: 12,
+        color: COLORS.light.textLime,
         marginTop: 4,
     },
     addButtonContainer: {
         flex: 1,
         alignItems: 'center',
-        // top: -20, // Lift it up slightly
     },
     addButton: {
         width: 50,
@@ -414,14 +388,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 4,
         borderColor: '#ffffff',
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: -4,
-        },
-        shadowOpacity: 0.10,
-        shadowRadius: 4.65,
-        elevation: 8,
         marginBottom: 1,
     },
     cancelText: {

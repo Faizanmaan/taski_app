@@ -20,7 +20,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { doc, setDoc } from 'firebase/firestore';
 import { firebaseAuth, firebaseFirestore } from '../../config/firebase';
 import { setUser } from '../../store/authSlice';
-import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../../constants/theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../../constants/theme';
 import { globalStyles } from '../../styles/globalStyles';
 import type { RootState } from '../../store';
 
@@ -82,10 +82,8 @@ const EditProfile: React.FC = () => {
                 let photoURL = user?.photoURL;
 
                 if (image) {
-                    // Convert image to base64
                     photoURL = await convertImageToBase64(image);
 
-                    // Store in Firestore
                     const userDocRef = doc(firebaseFirestore(), 'users', authUser.uid);
                     await setDoc(userDocRef, {
                         displayName: fullName,
@@ -98,11 +96,8 @@ const EditProfile: React.FC = () => {
 
                 await updateProfile(authUser, {
                     displayName: fullName,
-                    // Don't update photoURL in Firebase Auth - base64 is too long
-                    // Photo is stored in Firestore and Redux instead
                 });
 
-                // Create a new plain object to avoid mutation issues with frozen Redux state or Firebase User object
                 const plainUser = JSON.parse(JSON.stringify(user));
                 const updatedUser = {
                     ...plainUser,
@@ -130,7 +125,7 @@ const EditProfile: React.FC = () => {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color={COLORS.light.textSecondary} />
+                    <Ionicons name="arrow-back" size={24} color={'#B7B7B7'} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Edit Profile</Text>
                 <View style={{ width: 24 }} />
@@ -148,11 +143,10 @@ const EditProfile: React.FC = () => {
                             style={styles.avatar}
                         />
                         <TouchableOpacity style={styles.editIconContainer} onPress={pickImage}>
-                            <Ionicons name="pencil" size={16} color="#fff" />
+                            <Ionicons name="pencil" size={12} color="#fff" />
                         </TouchableOpacity>
                     </View>
 
-                    {/* Form Fields */}
                     <View style={styles.formContainer}>
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Full Name</Text>
@@ -179,7 +173,6 @@ const EditProfile: React.FC = () => {
                     </View>
                 </ScrollView>
 
-                {/* Save Button */}
                 <View style={styles.footer}>
                     <TouchableOpacity
                         style={styles.saveButton}
@@ -219,7 +212,7 @@ const styles = StyleSheet.create({
     avatarContainer: {
         position: 'relative',
         marginBottom: SPACING.xl,
-        marginTop: SPACING.md,
+        marginTop: SPACING.xs,
     },
     avatar: {
         width: 100,
@@ -232,8 +225,8 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         backgroundColor: COLORS.light.text, // Black background as per design
-        width: 32,
-        height: 32,
+        width: 24,
+        height: 24,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',

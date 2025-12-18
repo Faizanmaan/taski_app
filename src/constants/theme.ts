@@ -7,6 +7,7 @@ export const COLORS = {
     surface: '#F5F5F5',
     text: '#212121',
     textSecondary: '#757575',
+    textLime: '#B7B7B7',
     border: '#E0E0E0',
     error: '#F44336',
     success: '#4CAF50',
