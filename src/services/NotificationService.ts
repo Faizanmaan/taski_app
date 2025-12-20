@@ -61,6 +61,7 @@ class NotificationService {
         title: 'Task Reminder',
         body: task.title,
         data: { taskId: task.id },
+        priority: Notifications.AndroidNotificationPriority.MAX,
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,

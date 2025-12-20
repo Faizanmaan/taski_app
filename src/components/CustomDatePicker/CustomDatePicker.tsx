@@ -9,6 +9,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../../constants/theme';
 
 interface CustomDatePickerProps {
@@ -27,6 +28,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     onSelectDate,
     initialDate,
 }) => {
+    const insets = useSafeAreaInsets();
     const [mode, setMode] = useState<PickerMode>('date');
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(initialDate || null);
@@ -220,7 +222,10 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                     activeOpacity={1}
                     onPress={(e) => e.stopPropagation()}
                 >
-                    <View style={styles.modalContainer}>
+                    <View style={[
+                        styles.modalContainer,
+                        { paddingBottom: Math.max(insets.bottom, SPACING.lg) }
+                    ]}>
                         <View style={styles.handleBar} />
 
                         <View style={styles.headerRow}>

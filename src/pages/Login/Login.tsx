@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { firebaseAuth, firebaseFirestore } from '../../config/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { setUser, setLoading, setError, setIsRegistering } from '../../store/authSlice';
 import Button from '../../components/Button/Button';
@@ -28,7 +29,7 @@ type LoginScreenRouteProp = RouteProp<RootStackParamList, 'Login'>;
 
 const Login: React.FC = () => {
     const dispatch = useDispatch();
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const route = useRoute<LoginScreenRouteProp>();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -102,9 +103,10 @@ const Login: React.FC = () => {
                         console.error('Verification failed: Document not found!');
                         throw new Error('Data verification failed: Document not found after save.');
                     }
-                } catch (firestoreError: any) {
+                } catch (firestoreError: unknown) {
                     console.error('Error saving user data to Firestore:', firestoreError);
-                    Alert.alert('Warning', 'Account created but profile data could not be saved: ' + firestoreError.message);
+                    const message = firestoreError instanceof FirebaseError ? firestoreError.message : (firestoreError as Error).message;
+                    Alert.alert('Warning', 'Account created but profile data could not be saved: ' + message);
                 }
 
                 // Sign out immediately to prevent auto-login
@@ -134,27 +136,29 @@ const Login: React.FC = () => {
                 );
             }
             dispatch(setUser(userCredential.user));
-        } catch (error: any) {
+        } catch (error: unknown) {
             dispatch(setIsRegistering(false)); // Reset on error
             // console.error('Auth error:', error); // Removed to keep console clean
 
             // User-friendly error messages
             let errorMessage = 'An error occurred. Please try again.';
 
-            if (error.code === 'auth/email-already-in-use') {
-                errorMessage = 'This email is already registered. Please login instead.';
-            } else if (error.code === 'auth/invalid-email') {
-                errorMessage = 'Please enter a valid email address.';
-            } else if (error.code === 'auth/weak-password') {
-                errorMessage = 'Password should be at least 6 characters.';
-            } else if (error.code === 'auth/user-not-found') {
-                errorMessage = 'No account found with this email.';
-            } else if (error.code === 'auth/wrong-password') {
-                errorMessage = 'Incorrect password. Please try again.';
-            } else if (error.code === 'auth/invalid-credential') {
-                errorMessage = 'Invalid email or password.';
-            } else if (error.code === 'auth/too-many-requests') {
-                errorMessage = 'Too many failed attempts. Please try again later.';
+            if (error instanceof FirebaseError) {
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'This email is already registered. Please login instead.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Please enter a valid email address.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password should be at least 6 characters.';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No account found with this email.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Incorrect password. Please try again.';
+                } else if (error.code === 'auth/invalid-credential') {
+                    errorMessage = 'Invalid email or password.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many failed attempts. Please try again later.';
+                }
             }
 
             dispatch(setError(errorMessage));

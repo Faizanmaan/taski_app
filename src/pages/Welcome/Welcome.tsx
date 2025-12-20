@@ -36,16 +36,11 @@ const Welcome: React.FC = () => {
                 </View>
 
                 <View style={styles.illustrationContainer}>
-                    {/* Placeholder for illustration */}
-                    <View style={styles.placeholderIllustration}>
-                        <View style={[styles.card, styles.card1]} />
-                        <View style={[styles.card, styles.card2]}>
-                            <View style={styles.checkCircle} />
-                            <View style={styles.line} />
-                            <View style={[styles.line, { width: '60%' }]} />
-                        </View>
-                        <View style={[styles.card, styles.card3]} />
-                    </View>
+                    <Image
+                        source={require('../../assets/welcome_illustration.png')}
+                        style={styles.illustration}
+                        resizeMode="contain"
+                    />
                 </View>
 
                 <View style={styles.textContainer}>
@@ -91,59 +86,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        marginVertical: SPACING.xl,
     },
-    placeholderIllustration: {
-        width: 200,
-        height: 200,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    card: {
-        position: 'absolute',
-        backgroundColor: COLORS.light.surface,
-        borderRadius: 8,
-        padding: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    card1: {
-        width: 160,
-        height: 50,
-        top: 20,
-        opacity: 0.5,
-        transform: [{ scale: 0.9 }],
-    },
-    card2: {
-        width: 180,
-        height: 60,
-        zIndex: 2,
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-    },
-    card3: {
-        width: 160,
-        height: 50,
-        bottom: 20,
-        opacity: 0.5,
-        transform: [{ scale: 0.9 }],
-    },
-    checkCircle: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: COLORS.light.primary,
-        marginRight: 10,
-    },
-    line: {
-        height: 8,
-        backgroundColor: COLORS.light.primary,
-        borderRadius: 4,
-        marginBottom: 4,
-        flex: 1,
+    illustration: {
+        width: 285,
+        height: 211,
     },
     textContainer: {
         alignItems: 'center',

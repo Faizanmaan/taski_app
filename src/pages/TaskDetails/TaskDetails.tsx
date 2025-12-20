@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../../constants/theme';
 import { doc, setDoc, updateDoc, deleteDoc, Timestamp, collection, addDoc } from 'firebase/firestore';
 import { firebaseFirestore, firebaseAuth } from '../../config/firebase';
+import { FirebaseError } from 'firebase/app';
 import CustomDatePicker from '../../components/CustomDatePicker/CustomDatePicker';
 import { Dropdown } from 'react-native-element-dropdown';
 
@@ -23,7 +25,7 @@ import { RootStackParamList } from '../../navigation/types';
 type TaskDetailsRouteProp = RouteProp<RootStackParamList, 'TaskDetails'>;
 
 const TaskDetails = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const route = useRoute<TaskDetailsRouteProp>();
     const { task, date, mode: initialMode } = route.params || {};
     const [mode, setMode] = useState(initialMode || 'create');
@@ -90,9 +92,10 @@ const TaskDetails = () => {
             }
 
             navigation.goBack();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error saving task:', error);
-            Alert.alert('Error', 'Failed to save task: ' + error.message);
+            const message = error instanceof FirebaseError ? error.message : (error as Error).message;
+            Alert.alert('Error', 'Failed to save task: ' + message);
         } finally {
             setLoading(false);
         }
@@ -114,7 +117,7 @@ const TaskDetails = () => {
                         try {
                             await deleteDoc(doc(firebaseFirestore(), 'tasks', task.id));
                             navigation.goBack();
-                        } catch (error: any) {
+                        } catch (error: unknown) {
                             console.error('Error deleting task:', error);
                             Alert.alert('Error', 'Failed to delete task');
                         } finally {
@@ -302,7 +305,8 @@ const styles = StyleSheet.create({
         borderColor: COLORS.light.border,
         borderWidth: 1,
         borderRadius: BORDER_RADIUS.sm,
-        paddingHorizontal: 8,
+        paddingLeft: 10,
+        paddingRight: 8,
         backgroundColor: '#fff',
     },
     icon: {
@@ -311,10 +315,12 @@ const styles = StyleSheet.create({
     placeholderStyle: {
         fontSize: 14,
         color: COLORS.light.textSecondary,
+        marginLeft: 5,
     },
     selectedTextStyle: {
         fontSize: 14,
         color: COLORS.light.text,
+        marginLeft: 5,
     },
     iconStyle: {
         width: 20,

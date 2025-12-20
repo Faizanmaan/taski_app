@@ -13,19 +13,22 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
 import { doc, setDoc } from 'firebase/firestore';
 import { firebaseAuth, firebaseFirestore } from '../../config/firebase';
+import { FirebaseError } from 'firebase/app';
 import { setUser } from '../../store/authSlice';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../constants/theme';
 import { globalStyles } from '../../styles/globalStyles';
 import type { RootState } from '../../store';
 
 const EditProfile: React.FC = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
 
@@ -112,9 +115,10 @@ const EditProfile: React.FC = () => {
             } else {
                 Alert.alert('Error', 'User not found.');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Update profile error:', error);
-            Alert.alert('Error', error.message);
+            const message = error instanceof FirebaseError ? error.message : (error as Error).message;
+            Alert.alert('Error', message);
         } finally {
             setIsLoading(false);
         }

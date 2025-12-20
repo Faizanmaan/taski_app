@@ -24,9 +24,7 @@ const Splash: React.FC<SplashProps> = ({ onFinish }) => {
             style={[
                 styles.container,
                 {
-                    backgroundColor: isDarkMode
-                        ? COLORS.dark.background
-                        : COLORS.light.background,
+                    backgroundColor: '#FFFFFF',
                 },
             ]}>
             <Image

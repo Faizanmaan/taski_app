@@ -11,16 +11,19 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { firebaseAuth } from '../../config/firebase';
+import { FirebaseError } from 'firebase/app';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../../constants/theme';
 import { globalStyles } from '../../styles/globalStyles';
 
 const ChangePassword: React.FC = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -66,19 +69,18 @@ const ChangePassword: React.FC = () => {
             Alert.alert('Success', 'Password changed successfully!', [
                 { text: 'OK', onPress: () => navigation.goBack() }
             ]);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Change password error:', error);
-
             let errorMessage = 'Failed to change password. Please try again.';
-
-            if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                errorMessage = 'Old password is incorrect';
-            } else if (error.code === 'auth/weak-password') {
-                errorMessage = 'New password is too weak';
-            } else if (error.code === 'auth/requires-recent-login') {
-                errorMessage = 'Please log out and log in again before changing password';
+            if (error instanceof FirebaseError) {
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    errorMessage = 'Old password is incorrect';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'New password is too weak';
+                } else if (error.code === 'auth/requires-recent-login') {
+                    errorMessage = 'Please log out and log in again before changing password';
+                }
             }
-
             Alert.alert('Error', errorMessage);
         } finally {
             setIsLoading(false);

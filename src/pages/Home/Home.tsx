@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTasks } from '../../hooks/useTasks';
+import { Task } from '../../store/taskSlice';
 import TaskCard from '../../components/TaskCard/TaskCard';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../constants/theme';
 import { globalStyles } from '../../styles/globalStyles';
@@ -39,11 +40,11 @@ const Home: React.FC = () => {
         navigation.navigate('TaskDetails', { mode: 'create' });
     };
 
-    const handleViewTask = (task: any) => {
+    const handleViewTask = (task: Task) => {
         navigation.navigate('TaskDetails', { mode: 'view', task });
     };
 
-    const handleEditTask = (task: any) => {
+    const handleEditTask = (task: Task) => {
         navigation.navigate('TaskDetails', { mode: 'edit', task });
     };
 

@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../navigation/types';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { firebaseAuth } from '../../config/firebase';
@@ -20,7 +22,7 @@ import { globalStyles } from '../../styles/globalStyles';
 import type { RootState } from '../../store';
 
 const Settings: React.FC = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
 
@@ -29,14 +31,15 @@ const Settings: React.FC = () => {
             console.log('Logging out...');
             dispatch(clearUser());
             await signOut(firebaseAuth());
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Logout error:', error);
-            Alert.alert('Error', error.message);
+            const message = error instanceof Error ? error.message : 'An unknown error occurred';
+            Alert.alert('Error', message);
         }
     };
 
     const handleChangePassword = () => {
-        navigation.navigate('ChangePassword' as never);
+        navigation.navigate('ChangePassword');
     };
 
     return (
@@ -65,7 +68,7 @@ const Settings: React.FC = () => {
                     </View>
                     <TouchableOpacity
                         style={styles.editButton}
-                        onPress={() => navigation.navigate('EditProfile' as never)}
+                        onPress={() => navigation.navigate('EditProfile')}
                     >
                         <Feather name="edit" size={20} color="#B7B7B7" />
                     </TouchableOpacity>
