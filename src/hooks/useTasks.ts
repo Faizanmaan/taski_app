@@ -24,6 +24,7 @@ import {
 } from '../store/taskSlice';
 import type {Task} from '../store/taskSlice';
 import type {RootState, AppDispatch} from '../store';
+import NotificationService from '../services/NotificationService';
 
 export const useTasks = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -54,7 +55,7 @@ export const useTasks = () => {
       snapshot => {
         const tasksData: Task[] = snapshot.docs.map(docSnapshot => {
           const data = docSnapshot.data();
-          return {
+          const task: Task = {
             id: docSnapshot.id,
             title: data.title,
             notes: data.notes,
@@ -65,6 +66,13 @@ export const useTasks = () => {
             updatedAt: data.updatedAt.toDate(),
             userId: data.userId,
           };
+
+          // Schedule notification if it's in the future and not completed
+          if (task.remindAt && !task.completed) {
+            NotificationService.scheduleTaskNotification(task);
+          }
+
+          return task;
         });
         dispatch(setTasks(tasksData));
       },
@@ -95,15 +103,19 @@ export const useTasks = () => {
       const tasksRef = collection(db, 'tasks');
       const docRef = await addDoc(tasksRef, newTask);
       
-      dispatch(
-        addTaskAction({
-          ...taskData,
-          id: docRef.id,
-          userId: user.uid,
-          createdAt: now,
-          updatedAt: now,
-        }),
-      );
+      const task = {
+        ...taskData,
+        id: docRef.id,
+        userId: user.uid,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      dispatch(addTaskAction(task));
+
+      if (task.remindAt && !task.completed) {
+        NotificationService.scheduleTaskNotification(task);
+      }
     } catch (err: any) {
       console.error('Error adding task:', err);
       dispatch(setError(err.message));
@@ -130,13 +142,20 @@ export const useTasks = () => {
 
       const task = tasks.find(t => t.id === taskId);
       if (task) {
-        dispatch(
-          updateTaskAction({
-            ...task,
-            ...updates,
-            updatedAt: now,
-          } as Task),
-        );
+        const updatedTask = {
+          ...task,
+          ...updates,
+          updatedAt: now,
+        } as Task;
+
+        dispatch(updateTaskAction(updatedTask));
+
+        // Update notification
+        if (updatedTask.remindAt && !updatedTask.completed) {
+          NotificationService.scheduleTaskNotification(updatedTask);
+        } else {
+          NotificationService.cancelTaskNotification(taskId);
+        }
       }
     } catch (err: any) {
       console.error('Error updating task:', err);
@@ -154,6 +173,7 @@ export const useTasks = () => {
       await deleteDoc(taskRef);
       console.log('useTasks: doc deleted from firestore, dispatching action');
       dispatch(deleteTaskAction(taskId));
+      NotificationService.cancelTaskNotification(taskId);
     } catch (err: any) {
       console.error('Error deleting task:', err);
       dispatch(setError(err.message));
@@ -174,6 +194,20 @@ export const useTasks = () => {
       });
 
       dispatch(toggleCompleteAction(taskId));
+
+      const updatedTask = tasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        if (!updatedTask.completed && updatedTask.remindAt) {
+          // It was just unmarked as completed
+          NotificationService.scheduleTaskNotification({
+            ...updatedTask,
+            completed: !updatedTask.completed, // Use the new state
+          });
+        } else {
+          // It was just marked as completed
+          NotificationService.cancelTaskNotification(taskId);
+        }
+      }
     } catch (err: any) {
       console.error('Error toggling task:', err);
       dispatch(setError(err.message));
