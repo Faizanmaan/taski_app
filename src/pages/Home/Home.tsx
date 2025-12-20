@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     View,
     Text,
@@ -35,17 +35,65 @@ const Home: React.FC = () => {
     const [menuVisible, setMenuVisible] = useState(false);
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const sortedTasks = useMemo(() => {
+        const now = new Date();
+
+        // Filter by search query first
+        const filteredTasks = tasks.filter(task =>
+            task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            task.notes.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        // Split tasks into upcoming and others
+        const upcoming = filteredTasks.filter(task =>
+            !task.completed && task.remindAt && new Date(task.remindAt) > now
+        );
+
+        const others = filteredTasks.filter(task =>
+            task.completed || !task.remindAt || new Date(task.remindAt) <= now
+        );
+
+        // Sort upcoming by remindAt ascending (soonest first)
+        upcoming.sort((a, b) => {
+            const dateA = new Date(a.remindAt!).getTime();
+            const dateB = new Date(b.remindAt!).getTime();
+            return dateA - dateB;
+        });
+
+        // Sort others by createdAt descending (newest first)
+        others.sort((a, b) => {
+            const dateA = new Date(a.createdAt).getTime();
+            const dateB = new Date(b.createdAt).getTime();
+            return dateB - dateA;
+        });
+
+        return [...upcoming, ...others];
+    }, [tasks, searchQuery]);
 
     const handleAddTask = () => {
         navigation.navigate('TaskDetails', { mode: 'create' });
     };
 
     const handleViewTask = (task: Task) => {
-        navigation.navigate('TaskDetails', { mode: 'view', task });
+        const serializedTask = {
+            ...task,
+            remindAt: task.remindAt?.toISOString() || null,
+            createdAt: task.createdAt.toISOString(),
+            updatedAt: task.updatedAt.toISOString(),
+        };
+        navigation.navigate('TaskDetails', { mode: 'view', task: serializedTask });
     };
 
     const handleEditTask = (task: Task) => {
-        navigation.navigate('TaskDetails', { mode: 'edit', task });
+        const serializedTask = {
+            ...task,
+            remindAt: task.remindAt?.toISOString() || null,
+            createdAt: task.createdAt.toISOString(),
+            updatedAt: task.updatedAt.toISOString(),
+        };
+        navigation.navigate('TaskDetails', { mode: 'edit', task: serializedTask });
     };
 
     const handleDeleteTask = (taskId: string, taskTitle: string) => {
@@ -182,12 +230,14 @@ const Home: React.FC = () => {
                     style={styles.searchInput}
                     placeholder="Search task here..."
                     placeholderTextColor={COLORS.light.textSecondary}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
                 />
                 <Ionicons name="search-outline" size={24} color={'#B7B7B7'} style={styles.searchIcon} />
             </View>
 
             <FlatList
-                data={tasks}
+                data={sortedTasks}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity

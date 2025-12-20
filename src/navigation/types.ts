@@ -12,7 +12,11 @@ export type RootStackParamList = {
   TaskDetails: {
     mode?: 'create' | 'edit' | 'view';
     taskId?: string;
-    task?: Task;
+    task?: Omit<Task, 'remindAt' | 'createdAt' | 'updatedAt'> & {
+      remindAt?: string | null;
+      createdAt?: string;
+      updatedAt?: string;
+    };
     date?: string;
   };
 };

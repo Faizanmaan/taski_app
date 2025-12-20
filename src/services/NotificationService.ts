@@ -2,18 +2,20 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Task } from '../store/taskSlice';
 
+// Configure how notifications are handled when the app is in the foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
 class NotificationService {
   constructor() {
-    // Configure how notifications are handled when the app is in the foreground
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-      }),
-    });
+    // Handler moved to top level for better registration
   }
 
   async requestPermissions() {
@@ -29,11 +31,13 @@ class NotificationService {
     }
 
     if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'Default',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#FF231F7C',
+        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+        bypassDnd: true,
       });
     }
 
@@ -55,12 +59,21 @@ class NotificationService {
     // Cancel existing notification for this task if any
     await this.cancelTaskNotification(task.id);
 
+    // Ensure channel exists (redundant but safe)
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'Default',
+        importance: Notifications.AndroidImportance.MAX,
+      });
+    }
+
     // Schedule the notification
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Task Reminder',
         body: task.title,
         data: { taskId: task.id },
+        sound: true,
         priority: Notifications.AndroidNotificationPriority.MAX,
       },
       trigger: {
