@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TaskiApp",
-    "slug": "taskiapp",
+    "slug": "taskiapp-6mgsnst30bocpqtcmkhjx",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -39,8 +39,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "b731c900-5f62-40c3-bba6-9393b7864bcf"
+        "projectId": "c395a6ad-24b5-45e9-b6c1-b7acb6857c41"
       }
-    }
+    },
+    "owner": "whyisfaizi"
   }
 }
