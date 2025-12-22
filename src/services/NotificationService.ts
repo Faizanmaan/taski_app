@@ -2,7 +2,6 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Task } from '../store/taskSlice';
 
-// Configure how notifications are handled when the app is in the foreground
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -14,9 +13,7 @@ Notifications.setNotificationHandler({
 });
 
 class NotificationService {
-  constructor() {
-    // Handler moved to top level for better registration
-  }
+  constructor() {}
 
   async requestPermissions() {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -50,16 +47,13 @@ class NotificationService {
     const remindAtDate = new Date(task.remindAt);
     const now = new Date();
 
-    // Only schedule if the time is in the future
     if (remindAtDate <= now) {
       console.log('Reminder time is in the past, skipping scheduling');
       return;
     }
 
-    // Cancel existing notification for this task if any
     await this.cancelTaskNotification(task.id);
 
-    // Ensure channel exists (redundant but safe)
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Default',
@@ -67,7 +61,6 @@ class NotificationService {
       });
     }
 
-    // Schedule the notification
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Task Reminder',
@@ -80,7 +73,7 @@ class NotificationService {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: remindAtDate,
       },
-      identifier: task.id, // Use task ID as identifier for easy cancellation
+      identifier: task.id,
     });
 
     console.log(`Notification scheduled for task ${task.id} at ${remindAtDate}`);

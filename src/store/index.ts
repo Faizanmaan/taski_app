@@ -10,16 +10,12 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Ignore these action types for serialization check
         ignoredActions: ['auth/setUser', 'tasks/setTasks', 'tasks/addTask', 'tasks/updateTask'],
-        // Ignore these field paths in all actions
         ignoredActionPaths: ['payload.createdAt', 'payload.updatedAt', 'payload.remindAt'],
-        // Ignore these paths in the state
         ignoredPaths: ['tasks.tasks', 'auth.user'],
       },
     }),
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

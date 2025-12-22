@@ -33,7 +33,6 @@ export const useTasks = () => {
   );
   const {user} = useSelector((state: RootState) => state.auth);
 
-  // Subscribe to tasks from Firestore
   useEffect(() => {
     if (!user) {
       dispatch(setTasks([]));
@@ -67,7 +66,6 @@ export const useTasks = () => {
             userId: data.userId,
           };
 
-          // Schedule notification if it's in the future and not completed
           if (task.remindAt && !task.completed) {
             NotificationService.scheduleTaskNotification(task);
           }
@@ -131,7 +129,6 @@ export const useTasks = () => {
         updatedAt: Timestamp.fromDate(now),
       };
 
-      // Convert remindAt to Timestamp if it exists
       if (updates.remindAt !== undefined) {
         updatedData.remindAt = updates.remindAt ? Timestamp.fromDate(updates.remindAt) : null;
       }
@@ -180,7 +177,6 @@ export const useTasks = () => {
     }
   };
 
-  // Toggle task completion
   const toggleComplete = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
@@ -198,13 +194,11 @@ export const useTasks = () => {
       const updatedTask = tasks.find(t => t.id === taskId);
       if (updatedTask) {
         if (!updatedTask.completed && updatedTask.remindAt) {
-          // It was just unmarked as completed
           NotificationService.scheduleTaskNotification({
             ...updatedTask,
-            completed: !updatedTask.completed, // Use the new state
+            completed: !updatedTask.completed,
           });
         } else {
-          // It was just marked as completed
           NotificationService.cancelTaskNotification(taskId);
         }
       }

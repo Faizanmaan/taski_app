@@ -126,7 +126,6 @@ const EditProfile: React.FC = () => {
 
     return (
         <SafeAreaView style={globalStyles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={'#B7B7B7'} />
@@ -140,7 +139,6 @@ const EditProfile: React.FC = () => {
                 style={{ flex: 1 }}
             >
                 <ScrollView contentContainerStyle={styles.content}>
-                    {/* Avatar Section */}
                     <View style={styles.avatarContainer}>
                         <Image
                             source={{ uri: image || user?.photoURL || 'https://i.pravatar.cc/150?img=12' }}
@@ -171,7 +169,7 @@ const EditProfile: React.FC = () => {
                                 onChangeText={setEmail}
                                 placeholder="Enter your email"
                                 placeholderTextColor={COLORS.light.textSecondary}
-                                editable={false} // Email update is complex, disabling for now
+                                editable={false}
                             />
                         </View>
                     </View>
@@ -228,7 +226,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         right: 0,
-        backgroundColor: COLORS.light.text, // Black background as per design
+        backgroundColor: COLORS.light.text,
         width: 24,
         height: 24,
         borderRadius: 16,
@@ -263,7 +261,7 @@ const styles = StyleSheet.create({
         paddingBottom: SPACING.xl,
     },
     saveButton: {
-        backgroundColor: '#7EBB4F', // Green color from design/theme
+        backgroundColor: '#7EBB4F',
         paddingVertical: SPACING.md,
         borderRadius: BORDER_RADIUS.sm,
         alignItems: 'center',

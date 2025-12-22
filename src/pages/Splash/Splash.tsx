@@ -11,7 +11,6 @@ const Splash: React.FC<SplashProps> = ({ onFinish }) => {
     const isDarkMode = colorScheme === 'dark';
 
     useEffect(() => {
-        // Show splash screen for 1 second
         const timer = setTimeout(() => {
             onFinish();
         }, 1000);

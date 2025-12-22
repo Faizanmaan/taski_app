@@ -44,7 +44,6 @@ const Settings: React.FC = () => {
 
     return (
         <SafeAreaView style={globalStyles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#B7B7B7" />
@@ -54,7 +53,6 @@ const Settings: React.FC = () => {
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-                {/* User Profile */}
                 <View style={styles.profileContainer}>
                     <View style={styles.avatarContainer}>
                         <Image
@@ -74,12 +72,9 @@ const Settings: React.FC = () => {
                     </TouchableOpacity>
                 </View>
 
-                {/* About Section */}
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionHeaderText}>About</Text>
                 </View>
-
-                {/* Menu Items */}
                 <View style={styles.menuContainer}>
                     <TouchableOpacity style={styles.menuItem} onPress={handleChangePassword}>
                         <Text style={styles.menuItemText}>Change Password</Text>
@@ -94,7 +89,6 @@ const Settings: React.FC = () => {
                 </View>
             </ScrollView>
 
-            {/* Footer at bottom */}
             <View style={styles.footer}>
                 <Text style={styles.footerText}>Todo App</Text>
             </View>
@@ -155,14 +149,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5F5F5',
         paddingVertical: SPACING.sm,
         paddingHorizontal: SPACING.md,
-        marginHorizontal: -SPACING.lg, // Extend to edges
+        marginHorizontal: -SPACING.lg,
         marginBottom: SPACING.md,
-        alignItems: 'center', // Center content horizontally
+        alignItems: 'center',
     },
     sectionHeaderText: {
         fontSize: 14,
         color: COLORS.light.textSecondary,
-        textAlign: 'center', // Ensure text is centered
+        textAlign: 'center',
     },
     menuContainer: {
         marginBottom: SPACING.xl,

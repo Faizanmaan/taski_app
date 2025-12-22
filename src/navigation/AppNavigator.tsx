@@ -7,8 +7,6 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { setUser, setLoading } from '../store/authSlice';
 import type { RootState } from '../store';
-
-// Import screens
 import Splash from '../pages/Splash/Splash';
 import Welcome from '../pages/Welcome/Welcome';
 import Login from '../pages/Login/Login';
@@ -37,19 +35,15 @@ const AppNavigator: React.FC = () => {
     }, [isAuthenticated]);
 
     useEffect(() => {
-        // Listen for authentication state changes
         const unsubscribe = onAuthStateChanged(firebaseAuth(), async (user: any) => {
             if (user) {
-                // Fetch additional profile data from Firestore
                 try {
                     const userDocRef = doc(firebaseFirestore(), 'users', user.uid);
                     const userDoc = await getDoc(userDocRef);
 
                     if (userDoc.exists()) {
                         const firestoreData = userDoc.data();
-                        // Create plain object copy to avoid read-only property errors
                         const plainUser = JSON.parse(JSON.stringify(user));
-                        // Merge Firebase Auth user with Firestore data
                         const mergedUser = {
                             ...plainUser,
                             photoURL: firestoreData.photoURL || plainUser.photoURL,
@@ -75,7 +69,6 @@ const AppNavigator: React.FC = () => {
         setShowSplash(false);
     };
 
-    // Show splash screen until BOTH timer finishes AND auth completes
     if (showSplash || isLoading) {
         return <Splash onFinish={handleSplashFinish} />;
     }

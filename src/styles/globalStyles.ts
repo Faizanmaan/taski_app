@@ -60,14 +60,13 @@ export const globalStyles = StyleSheet.create({
     fontWeight: TYPOGRAPHY.fontWeight.regular,
     color: COLORS.light.textSecondary,
   },
-  // Card styles
+
   card: {
     backgroundColor: COLORS.light.surface,
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.md,
   },
-  // Input styles
   inputContainer: {
     marginBottom: SPACING.md,
   },
@@ -97,7 +96,6 @@ export const globalStyles = StyleSheet.create({
     color: COLORS.light.error,
     marginTop: SPACING.xs,
   },
-  // Button styles
   button: {
     borderRadius: BORDER_RADIUS.md,
     padding: SPACING.md,

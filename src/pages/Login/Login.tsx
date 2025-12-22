@@ -69,13 +69,11 @@ const Login: React.FC = () => {
         }
 
         setLoadingState(true);
-        // dispatch(setLoading(true)); // Removed to prevent AppNavigator from unmounting
 
         try {
             let userCredential;
             if (isSignUp) {
                 dispatch(setIsRegistering(true)); // Prevent auto-navigation to Home
-                // Create user
                 userCredential = await createUserWithEmailAndPassword(
                     firebaseAuth(),
                     email,
@@ -87,7 +85,7 @@ const Login: React.FC = () => {
                     console.log('Saving user data to Firestore...', userCredential.user.uid);
                     await setDoc(doc(firebaseFirestore(), 'users', userCredential.user.uid), {
                         fullName,
-                        displayName: fullName, // Also save as displayName for profile display
+                        displayName: fullName,
                         phoneNumber,
                         email,
                         createdAt: Timestamp.fromDate(new Date()),
@@ -111,7 +109,7 @@ const Login: React.FC = () => {
 
                 // Sign out immediately to prevent auto-login
                 await signOut(firebaseAuth());
-                dispatch(setIsRegistering(false)); // Allow navigation updates again
+                dispatch(setIsRegistering(false));
 
                 Alert.alert(
                     'Success',
@@ -122,12 +120,11 @@ const Login: React.FC = () => {
                             onPress: () => {
                                 setIsSignUp(false);
                                 setPassword('');
-                                // Optional: clear other fields if desired
                             },
                         },
                     ],
                 );
-                return; // Exit function, don't dispatch setUser
+                return;
             } else {
                 userCredential = await signInWithEmailAndPassword(
                     firebaseAuth(),
@@ -137,10 +134,7 @@ const Login: React.FC = () => {
             }
             dispatch(setUser(userCredential.user));
         } catch (error: unknown) {
-            dispatch(setIsRegistering(false)); // Reset on error
-            // console.error('Auth error:', error); // Removed to keep console clean
-
-            // User-friendly error messages
+            dispatch(setIsRegistering(false));
             let errorMessage = 'An error occurred. Please try again.';
 
             if (error instanceof FirebaseError) {
@@ -163,10 +157,9 @@ const Login: React.FC = () => {
 
             dispatch(setError(errorMessage));
             Alert.alert('Error', errorMessage);
-            return; // Exit function to prevent any further execution
+            return;
         } finally {
             setLoadingState(false);
-            // dispatch(setLoading(false)); // Removed
         }
     };
 
@@ -183,7 +176,6 @@ const Login: React.FC = () => {
                     contentContainerStyle={styles.scrollContent}
                     keyboardShouldPersistTaps="handled">
 
-                    {/* Header with Back Button */}
                     <View style={styles.header}>
                         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                             <Ionicons name="arrow-back" size={24} color="#B7B7B7" />
@@ -333,7 +325,7 @@ const styles = StyleSheet.create({
         marginTop: SPACING.xl,
     },
     title: {
-        fontSize: 26, // Larger title as per image
+        fontSize: 26,
         fontWeight: TYPOGRAPHY.fontWeight.bold,
         color: COLORS.light.text,
         marginBottom: SPACING.xs,
@@ -350,7 +342,7 @@ const styles = StyleSheet.create({
     authButton: {
         marginTop: SPACING.xl,
         marginBottom: SPACING.lg,
-        backgroundColor: COLORS.light.primary, // Green
+        backgroundColor: COLORS.light.primary,
         borderRadius: 4,
     },
     footer: {
@@ -364,7 +356,7 @@ const styles = StyleSheet.create({
     },
     footerLink: {
         fontSize: TYPOGRAPHY.fontSize.sm,
-        color: COLORS.light.primary, // Green
+        color: COLORS.light.primary,
     },
     termsContainer: {
         flexDirection: 'row',

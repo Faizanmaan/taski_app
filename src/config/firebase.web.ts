@@ -16,9 +16,8 @@ const firebaseConfig = {
 // Initialize Firebase for web
 const app = initializeApp(firebaseConfig);
 
-// Export Firebase services for web
+
 export const firebaseAuth = () => getAuth(app);
 export const firebaseFirestore = () => getFirestore(app);
 
-// Export configuration for reference
 export default firebaseConfig;

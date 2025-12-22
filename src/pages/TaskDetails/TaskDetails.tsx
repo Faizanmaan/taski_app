@@ -51,9 +51,8 @@ const TaskDetails = () => {
                 setRemindAt(new Date(task.remindAt));
             }
         } else if (date) {
-            // If a date is passed from Calendar view, set it as default reminder
             const initialDate = new Date(date);
-            initialDate.setHours(9, 0, 0, 0); // Default to 9 AM
+            initialDate.setHours(9, 0, 0, 0);
             setRemindAt(initialDate);
         }
     }, [task, date]);
@@ -75,7 +74,7 @@ const TaskDetails = () => {
             const taskData = {
                 title,
                 notes,
-                tag: tag || 'normal', // Default to normal if not selected
+                tag: tag || 'normal',
                 remindAt: remindAt ? Timestamp.fromDate(remindAt) : null,
                 updatedAt: Timestamp.now(),
                 userId: user.uid,
@@ -150,7 +149,7 @@ const TaskDetails = () => {
             </View>
 
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-                {/* Title Input */}
+
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Title</Text>
                     <TextInput
@@ -163,7 +162,6 @@ const TaskDetails = () => {
                     />
                 </View>
 
-                {/* Notes Input */}
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Notes</Text>
                     <TextInput
@@ -178,7 +176,6 @@ const TaskDetails = () => {
                     />
                 </View>
 
-                {/* Tags */}
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Tags</Text>
                     <Dropdown
@@ -201,7 +198,6 @@ const TaskDetails = () => {
                     />
                 </View>
 
-                {/* Remind Me */}
                 <View style={styles.inputGroup}>
                     <Text style={styles.sectionHeader}>Remind Me</Text>
                     <View style={styles.reminderBox}>

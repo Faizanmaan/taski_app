@@ -40,13 +40,11 @@ const Home: React.FC = () => {
     const sortedTasks = useMemo(() => {
         const now = new Date();
 
-        // Filter by search query first
         const filteredTasks = tasks.filter(task =>
             task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             task.notes.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
-        // Split tasks into upcoming and others
         const upcoming = filteredTasks.filter(task =>
             !task.completed && task.remindAt && new Date(task.remindAt) > now
         );
@@ -55,14 +53,12 @@ const Home: React.FC = () => {
             task.completed || !task.remindAt || new Date(task.remindAt) <= now
         );
 
-        // Sort upcoming by remindAt ascending (soonest first)
         upcoming.sort((a, b) => {
             const dateA = new Date(a.remindAt!).getTime();
             const dateB = new Date(b.remindAt!).getTime();
             return dateA - dateB;
         });
 
-        // Sort others by createdAt descending (newest first)
         others.sort((a, b) => {
             const dateA = new Date(a.createdAt).getTime();
             const dateB = new Date(b.createdAt).getTime();

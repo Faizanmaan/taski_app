@@ -89,7 +89,6 @@ const ChangePassword: React.FC = () => {
 
     return (
         <SafeAreaView style={globalStyles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={COLORS.light.textSecondary} />
@@ -137,7 +136,6 @@ const ChangePassword: React.FC = () => {
                     </View>
                 </ScrollView>
 
-                {/* Save Button */}
                 <View style={styles.footer}>
                     <Button
                         title="Save Changes"

@@ -40,10 +40,10 @@ try {
   auth = getAuth(app);
 }
 
-// Export Firebase services
+
 export const firebaseAuth = () => auth;
 export const firebaseFirestore = () => getFirestore(app);
 export const firebaseStorage = () => getStorage(app);
 
-// Export configuration for reference
+
 export default firebaseConfig;
