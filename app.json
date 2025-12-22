@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TaskiApp",
-    "slug": "taskiapp-6mgsnst30bocpqtcmkhjx",
+    "slug": "taski-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.whyisfaizi.taskiapp",
+      "package": "com.faizan_maan.taski-app",
       "permissions": [
         "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.USE_EXACT_ALARM",
@@ -37,11 +37,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "owner": "faizan_maan",
     "extra": {
       "eas": {
-        "projectId": "c395a6ad-24b5-45e9-b6c1-b7acb6857c41"
+        "projectId": "7eb822d8-cd7c-45f7-a0b7-66cc42db4e51"
       }
-    },
-    "owner": "whyisfaizi"
+    }
   }
 }
