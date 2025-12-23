@@ -114,9 +114,9 @@ export const useTasks = () => {
       if (task.remindAt && !task.completed) {
         NotificationService.scheduleTaskNotification(task);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error adding task:', err);
-      dispatch(setError(err.message));
+      dispatch(setError((err as Error).message));
     }
   };
 
@@ -124,13 +124,14 @@ export const useTasks = () => {
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
       const now = new Date();
-      const updatedData: any = {
-        ...updates,
+      const { remindAt, ...restUpdates } = updates;
+      const updatedData: Record<string, unknown> = {
+        ...restUpdates,
         updatedAt: Timestamp.fromDate(now),
       };
 
-      if (updates.remindAt !== undefined) {
-        updatedData.remindAt = updates.remindAt ? Timestamp.fromDate(updates.remindAt) : null;
+      if (remindAt !== undefined) {
+        updatedData.remindAt = remindAt ? Timestamp.fromDate(remindAt) : null;
       }
 
       const db = firebaseFirestore();
@@ -154,9 +155,9 @@ export const useTasks = () => {
           NotificationService.cancelTaskNotification(taskId);
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating task:', err);
-      dispatch(setError(err.message));
+      dispatch(setError((err as Error).message));
     }
   };
 
@@ -171,9 +172,9 @@ export const useTasks = () => {
       console.log('useTasks: doc deleted from firestore, dispatching action');
       dispatch(deleteTaskAction(taskId));
       NotificationService.cancelTaskNotification(taskId);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting task:', err);
-      dispatch(setError(err.message));
+      dispatch(setError((err as Error).message));
     }
   };
 
@@ -202,9 +203,9 @@ export const useTasks = () => {
           NotificationService.cancelTaskNotification(taskId);
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error toggling task:', err);
-      dispatch(setError(err.message));
+      dispatch(setError((err as Error).message));
     }
   };
 
