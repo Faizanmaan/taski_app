@@ -14,8 +14,8 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
-import { firebaseAuth, firebaseFirestore } from '../../config/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { firebaseAuth, firebaseFirestore, GoogleSignin } from '../../config/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { setUser, setLoading, setError, setIsRegistering } from '../../store/authSlice';
@@ -157,7 +157,51 @@ const Login: React.FC = () => {
 
             dispatch(setError(errorMessage));
             Alert.alert('Error', errorMessage);
-            return;
+        } finally {
+            setLoadingState(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setLoadingState(true);
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+
+            // In v13+, the response structure is { data: { idToken, user, ... }, type: 'success' }
+            const idToken = response.data?.idToken;
+
+            if (!idToken) {
+                throw new Error('No ID token found');
+            }
+
+            const credential = GoogleAuthProvider.credential(idToken);
+            const userCredential = await signInWithCredential(firebaseAuth(), credential);
+            const user = userCredential.user;
+
+            // Check if user exists in Firestore
+            const userDoc = await getDoc(doc(firebaseFirestore(), 'users', user.uid));
+
+            if (!userDoc.exists()) {
+                // Create new user document
+                await setDoc(doc(firebaseFirestore(), 'users', user.uid), {
+                    fullName: user.displayName || 'Google User',
+                    displayName: user.displayName || 'Google User',
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    createdAt: Timestamp.fromDate(new Date()),
+                });
+            }
+
+            dispatch(setUser(user));
+        } catch (error: any) {
+            console.error('Google Sign-In Error:', error);
+            let errorMessage = 'Google Sign-In failed.';
+            // SIGN_IN_CANCELLED is usually code '7' or status code 12501
+            if (error.code === '7' || error.code === '12501') {
+                errorMessage = 'Sign-in cancelled.';
+            }
+            Alert.alert('Error', errorMessage);
         } finally {
             setLoadingState(false);
         }
@@ -270,6 +314,15 @@ const Login: React.FC = () => {
                     loading={loading}
                     style={styles.authButton}
                 />
+
+                <TouchableOpacity
+                    style={styles.googleButton}
+                    onPress={handleGoogleLogin}
+                    disabled={loading}
+                >
+                    <Ionicons name="logo-google" size={20} color="#DB4437" />
+                    <Text style={styles.googleButtonText}>Continue with Google</Text>
+                </TouchableOpacity>
 
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>
@@ -387,6 +440,23 @@ const styles = StyleSheet.create({
     },
     termsHighlight: {
         color: COLORS.light.primary,
+    },
+    googleButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#E5E5E5',
+        borderRadius: 4,
+        paddingVertical: SPACING.md,
+        marginBottom: SPACING.lg,
+    },
+    googleButtonText: {
+        marginLeft: SPACING.sm,
+        fontSize: TYPOGRAPHY.fontSize.md,
+        fontWeight: TYPOGRAPHY.fontWeight.medium,
+        color: COLORS.light.text,
     },
 });
 
