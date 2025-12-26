@@ -23,6 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.faizan_maan.taskiapp",
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.USE_EXACT_ALARM",
@@ -32,7 +33,9 @@
       ]
     },
     "plugins": [
-      "expo-notifications"
+      "expo-notifications",
+      "@react-native-google-signin/google-signin",
+      "@react-native-firebase/app"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
